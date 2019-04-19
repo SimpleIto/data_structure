@@ -1,5 +1,8 @@
 package bitmap;
 
+import java.util.Arrays;
+import java.util.BitSet;
+
 /**
  * 以bit为存储单位的数据结构
  * 对于给定第i位，1表示true，0表示false
@@ -10,12 +13,13 @@ package bitmap;
  */
 public class Bitmap {
 
-    byte[] bytes;
-
+    private byte[] bytes;
+    private int length;
     /**
      * @param length 位图长度，实际可操作下标为[0,length)
      */
     public Bitmap(int length){
+        this.length = length;
         bytes = new byte[length%8==0 ? length/8 : length/8+1];
     }
 
@@ -44,5 +48,17 @@ public class Bitmap {
             return false;
         else
             return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer("Bitmap[");
+        for(int i=0;i<length;i++){
+            buffer.append(get(i)).append(',');
+        }
+        if (bytes.length!=0)
+            buffer = buffer.deleteCharAt(buffer.length()-1);
+        buffer.append(']');
+        return buffer.toString();
     }
 }
