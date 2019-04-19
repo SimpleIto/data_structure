@@ -4,6 +4,7 @@ package bitmap;
  * 以bit为存储单位的数据结构
  * 对于给定第i位，1表示true，0表示false
  * 对于只需进行布尔存取的情况来说，是非常节省空间且高效的方案
+ * TODO：任意下标指定，动态扩容?
  * @author SimpleIto
  * @date 2019-04-19
  */
