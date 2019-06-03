@@ -1,8 +1,5 @@
 package bitmap;
 
-import java.util.Arrays;
-import java.util.BitSet;
-
 /**
  * 以bit为存储单位的数据结构
  * 对于给定第i位，1表示true，0表示false
@@ -15,6 +12,7 @@ public class Bitmap {
 
     private byte[] bytes;
     private int length;
+
     /**
      * @param length 位图长度，实际可操作下标为[0,length)
      */
