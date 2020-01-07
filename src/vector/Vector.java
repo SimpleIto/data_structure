@@ -1,5 +1,6 @@
 package vector;
 
+import javax.activation.UnsupportedDataTypeException;
 import java.util.Arrays;
 
 public class Vector<T> {
@@ -107,25 +108,98 @@ public class Vector<T> {
     }
 
     /**
-     * 遍历查找目标对象，返回其下标
-     * @param target 目标对象
-     * @return 所在下标
+     * 从前往后遍历查找，细节参考 indexOf(Object,int,int) 方法
+     * @see vector.Vector#indexOf(Object,int,int)
      */
     public int indexOf(Object target){
+        return indexOf(target, 0, size);
+    }
+
+    /**
+     * 在[low,high)区域内查找元素
+     * @param target 目标对象
+     * @param low 下界，包括
+     * @param high 上届，不包括
+     * @return 目标对象下标，未找到返回-1
+     */
+    public int indexOf(Object target, int low, int high){
         if(target == null){
-            for(int i=0; i<size-1; i++)
-                if(data[i] == null)
-                    return i;
+            for(; low<high; low++)
+                if(data[low] == null)
+                    return low;
         }else{
-            for(int i=0; i<size-1; i++)
-                if(data[i].equals(target))
-                    return i;
+            for(; low<high; low++)
+                if(data[low].equals(target))
+                    return low;
         }
         return -1;
     }
+
     public Object[] toArray(){
         return data;
     }
+
+    /**
+     * 无序向量唯一化 最差仍是O(n^2)
+     * 非排序情况下感觉这就是优化极限了
+     * 遍历元素（未标记删除），对每个元素检查后续是否有重复的。
+     * 若有重复，则标记删除，并从重复处往后继续检查直到没有重复元素。继续下个元素
+     */
+    public void deduplicate_NonSorted(){
+        int[] removeFlags = new int[size]; //标志位
+        for (int i = 0; i < size; i++) {
+            if (removeFlags[i] == 1) //加一个判断，虽然整体复杂度增加了n，只要有2个以上重复就是赚
+                continue;
+
+            Object current = data[i];
+            int start = i + 1;
+            int remove = indexOf(current, start, size);
+            while (remove != -1){
+                removeFlags[remove] = 1; //标志位置1
+                remove = indexOf(current, remove + 1, size);
+            }
+        }
+
+        // 根据删除标志一次性重建
+        rebuildVectorFromRemoveFlags(removeFlags);
+    }
+
+    public void sort(){
+
+
+    }
+
+    protected void checkSupportComparable(){
+        for (int i = 0; i < size; i++) {
+            if (data[i] instanceof Comparable)
+                continue;
+            throw new RuntimeException("UnsupportedDataTypeException");
+        }
+    }
+
+    /**
+     *
+     */
+    private void rebuildVectorFromRemoveFlags(int[] removeFlags){
+        if (removeFlags.length > data.length) throw new RuntimeException();
+
+        Object[] newData = new Object[removeFlags.length];
+        int newDataIndex = 0;
+        for (int i = 0; i < removeFlags.length; i++) {
+            if (removeFlags[i] != 1)
+                newData[newDataIndex++] = data[i];
+        }
+
+        initInternal(newData, newDataIndex); //因为前面已经++了，就不+1了
+    }
+
+    private void initInternal(Object[] data, int size){
+        if (size > data.length)
+            throw new RuntimeException("size must be less than data.length");
+        this.data = data;
+        this.size = size;
+    }
+
 
     //toString之所以不用Arrays.toString，是因为需要忽略空数组
     //TODO：这里改成迭代器比较好，当然我这没有继承结构，稍微无所谓一点
